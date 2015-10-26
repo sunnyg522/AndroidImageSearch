@@ -22,7 +22,7 @@ import java.util.List;
 public class ImageResutsAdapter extends ArrayAdapter<ImageResult>{
 
 
-    public ImageResutsAdapter(Context context, List<ImageResult> objects) {
+    public ImageResutsAdapter(Context context,int resource, List<ImageResult> objects) {
          super(context, android.R.layout.simple_list_item_1, objects);
 
     }
@@ -32,7 +32,9 @@ public class ImageResutsAdapter extends ArrayAdapter<ImageResult>{
         ImageResult imageInfo = getItem(position);
         if(convertView==null)
         {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_image_result,parent,false);
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.item_image_result, parent, false);
+            //convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_image_result,parent,false);
         }
         ImageView ivImage = (ImageView) convertView.findViewById(R.id.ivImage);
         TextView tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);

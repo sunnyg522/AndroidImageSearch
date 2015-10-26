@@ -1,34 +1,24 @@
 package com.example.dgunda.gridimagesearch.activity;
 
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import com.example.dgunda.gridimagesearch.R;
-import com.example.dgunda.gridimagesearch.models.ImageResult;
-import com.squareup.picasso.Picasso;
 
-public class ImageDisplayActivity extends AppCompatActivity {
+public class FilterDisplay extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_display);
-        //this.getActionBar().hide();
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
-        ImageResult result = (ImageResult)getIntent().getSerializableExtra("result");
-        ImageView ivImageResult = (ImageView)findViewById(R.id.ivImageResult);
-        Picasso.with(this).load(result.fullUrl).into(ivImageResult);
+        setContentView(R.layout.item_image_result);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_image_display, menu);
+        getMenuInflater().inflate(R.menu.menu_filter_display, menu);
         return true;
     }
 

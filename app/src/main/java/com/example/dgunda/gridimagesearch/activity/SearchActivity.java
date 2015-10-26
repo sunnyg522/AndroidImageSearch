@@ -5,14 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.dgunda.gridimagesearch.R;
 import com.example.dgunda.gridimagesearch.adapters.ImageResutsAdapter;
@@ -33,36 +36,39 @@ public class SearchActivity extends AppCompatActivity {
 
     private EditText etQueary;
     private GridView gvResults;
+    private Button btSearch;
     private ArrayList<ImageResult> imageResults;
     private ImageResutsAdapter aImageResult;
+
+    String gFilterImageSize = "";
+    String gFilterColorFilter = "";
+    String gFilterImageType  = "";
+    String gFilterSite  = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         setUpViews();
-
-        //Creating Data Source
-        imageResults = new ArrayList<>();
-        //Attaching Data Source to an adapter
-        aImageResult = new ImageResutsAdapter(this, imageResults);
-        //linking adapter to gridview
-        gvResults.setAdapter(aImageResult);
-        gvResults.setOnScrollListener(new EndlessScrollListener(5,1) {
-
-            @Override
-            public boolean getImage(int page, int totalItemCount) {
-                return false;
-            }
-        });
-
-
     }
 
     private void setUpViews()
     {
+        btSearch = (Button)findViewById(R.id.btSearch);
         etQueary = (EditText)findViewById(R.id.etQueary);
         gvResults = (GridView)findViewById(R.id.gvResults);
+        gvResults.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                int offset = page * 8;
+                getImage(offset, etQueary.getText().toString());
+                return true;
+            }
+        });
+        imageResults = new ArrayList<>();
+        aImageResult = new ImageResutsAdapter(this, R.id.gvResults ,imageResults);
+        gvResults.setAdapter(aImageResult);
         gvResults.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -79,33 +85,59 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
     }
+    private void showFilter_display()
+    {
+        Intent i = new Intent(SearchActivity.this, FilterDisplay.class);
+        // get image result
+        String result = "test";
+        //ImageResult result = imageResults.get(position);
+        // pass image result
+        i.putExtra("result", result);
+        // laund new activity]
+        startActivity(i);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search, menu);
+        //getMenuInflater().inflate(R.menu.menu_search, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        //showFilter_display();
         return true;
+    }
+    public void showSettingsScreen()
+    {
+        Toast.makeText(this, "Compose New Tweet", Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(SearchActivity.this, FilterSearchActivity.class);
+        startActivityForResult(i, 200);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch(item.getItemId()) {
+            case R.id.action_settings:
+                showSettingsScreen();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
-    public void getImage(int page)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        gFilterImageSize = data.getStringExtra("imageSize");
+        gFilterColorFilter = data.getStringExtra("colorFilter");
+        gFilterImageType = data.getStringExtra("imageType");
+        gFilterSite = data.getStringExtra("siteFilter");
+    }
+
+    public void getImage(int page, String q)
     {
-        String query = etQueary.getText().toString();
-        //int page = 1;
         int size = 8;
-        String searchUrl = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q="+query+"&start="+page+"&rsz="+size;
+        String query = q+getSearchQueryURL()+"&start=" + page;
+        //int page = 1;
+
+        String searchUrl = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q="+query;
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(searchUrl, new JsonHttpResponseHandler(){
 
@@ -126,8 +158,18 @@ public class SearchActivity extends AppCompatActivity {
         });
 
     }
+    public String getSearchQueryURL() {
+        String query = "&imgsz=" + gFilterImageSize +
+                "&imgcolor=" + gFilterColorFilter +
+                "&imgtype=" + gFilterImageType +
+                "&as_sitesearch=" + gFilterSite;
+        return query;
+    }
 
     public void onImageSearch(View view) {
-        getImage(2);
+        String query = etQueary.getText().toString();
+        Toast.makeText(this, "Finding images for " + query, Toast.LENGTH_SHORT).show();
+        aImageResult.clear();
+        getImage(1, query);
     }
 }
