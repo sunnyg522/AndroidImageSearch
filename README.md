@@ -1,1 +1,1 @@
-<img src='https://github.com/sunnyg522/InstagramApp/blob/master/Instagram.gif' width='' alt='Video Walkthrough' />
+<img src='https://github.com/sunnyg522/AndroidImageSearch/blob/master/ImageSearch.gif' width='' alt='Video Walkthrough' />
